@@ -56,23 +56,22 @@ tar -xzf /mnt/archiso-efi/surface-arch-usb-bundle.tar.gz -C /root/surface-instal
 bash /root/surface-installer/surface-archiso-installer.sh
 ```
 
-The launcher rechecks internet access, sets UK keymap, detects the Surface Laptop 3, and starts Archinstall. If you prefer to skip the launcher, start the normal Arch TUI directly with `archinstall`; the next section lists the profile choices.
+The launcher rechecks internet access, sets UK keymap, detects the Surface Laptop 3, and starts Archinstall with the Surface choices prefilled from `surface-archinstall-config.json`. If you start Archinstall directly, use the next section to enter those choices yourself.
 
 ## 3. Archinstall choices
 
-Use these settings in Archinstall. Names may vary slightly by ISO/Archinstall version.
+The launcher preselects the following settings in Archinstall. Confirm them in its summary before installing:
 
-- **Disk:** choose the internal NVMe by model and size. Do not select the USB. Inspect the partition/format summary before confirming; installation erases the selected disk.
-- **Filesystem/encryption:** Btrfs with LUKS encryption for root. Set and keep a strong LUKS passphrase; TPM unlock will be added later as a second method.
-- **EFI partition:** mount the EFI System Partition at `/efi`. Ensure it has room for the UKIs.
-- **Bootloader:** systemd-boot with Unified Kernel Images (UKIs).
-- **Kernel:** keep the standard `linux` kernel as a fallback. The Surface kernel is installed after first boot.
-- **Desktop:** KDE Plasma, `plasma-meta` flavor (Archinstall marks this as recommended), with Plasma Login Manager. Archinstall’s Plasma profile currently defaults to `plasma-meta` and Plasma Login Manager.
-- **Account:** create user `zahinprithi`; choose a password you can recover. The post-install script creates it if you skip this here.
-- **Locale and keyboard:** `en_GB.UTF-8`, console keymap `uk`, X11 layout `gb`.
-- **Network:** NetworkManager.
-- **Time zone:** `Asia/Dhaka`, or select your actual time zone.
+- **Locale and keyboard:** `en_GB.UTF-8` and `uk`.
+- **Desktop:** KDE Plasma with `plasma-meta` and Plasma Login Manager.
+- **Boot:** systemd-boot with Unified Kernel Images (UKIs); standard `linux` kernel.
+- **Network and audio:** NetworkManager and PipeWire.
+- **Time zone:** `Asia/Dhaka`.
 - **Additional packages:** `firefox sbctl cryptsetup mkinitcpio systemd-ukify tpm2-tss btrfs-progs intel-ucode sudo`.
+- **Disk:** choose the internal NVMe by model and size. Do not select the USB. Inspect the partition/format summary before confirming; installation erases the selected disk.
+- **Filesystem/encryption:** choose Btrfs with LUKS encryption for root. Set and keep a strong LUKS passphrase; TPM unlock will be added later as a second method.
+- **EFI partition:** mount the EFI System Partition at `/efi`. Ensure it has room for the UKIs.
+- **Account:** create user `zahinprithi`; choose a password you can recover. The post-install script creates it if you skip this here.
 
 Complete the install, then reboot into the new Arch system. Leave Secure Boot disabled for the first boot if required. Keep the USB connected.
 

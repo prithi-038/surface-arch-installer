@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Surface Laptop 3 live-ISO launcher. This runs Archinstall's own TUI; it does
-# not change or rebuild the ISO. Device configuration is applied afterward by
-# surface-arch-postinstall.sh.
+# Surface Laptop 3 live-ISO launcher. It preloads the Surface profile into
+# Archinstall's TUI; it does not change or rebuild the ISO. Device configuration
+# is applied afterward by surface-arch-postinstall.sh.
 set -Eeuo pipefail
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
@@ -9,9 +9,10 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 Surface Laptop 3 ArchISO installer launcher
 
 Run this from the stock Arch Linux ISO on the Surface Laptop 3. It sets the
-live console to UK, displays the Surface-specific Archinstall choices, and
-opens Archinstall's guided TUI. After Archinstall completes and you boot the
-new installation, run surface-arch-postinstall.sh from this USB.
+live console to UK, preloads the Surface-specific Archinstall choices, and
+opens Archinstall's guided TUI. Disk layout, encryption, and passwords remain
+interactive. After Archinstall completes and you boot the new installation,
+run surface-arch-postinstall.sh from this USB.
 
 This launcher does not write to the ISO or install the OS itself. Archinstall
 will partition/format the disk only after you select the device and confirm its
@@ -27,6 +28,9 @@ note() { printf '\n%s\n' "$*"; }
 [[ -f /etc/arch-release && -d /run/archiso ]] || die "This must run from the stock Arch ISO live environment."
 [[ -d /sys/firmware/efi ]] || die "Boot the USB in UEFI mode."
 command -v archinstall >/dev/null || die "archinstall is not present. Boot the current official Arch ISO."
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+CONFIG_FILE="$SCRIPT_DIR/surface-archinstall-config.json"
+[[ -r "$CONFIG_FILE" ]] || die "Missing Archinstall profile: $CONFIG_FILE. Extract the complete USB bundle and rerun this launcher."
 
 MODEL=$(cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null || true)
 CPU_VENDOR=$(awk -F: '/vendor_id/ {gsub(/[[:space:]]/, "", $2); print $2; exit}' /proc/cpuinfo)
@@ -66,20 +70,18 @@ echo "Detected storage devices (select carefully in Archinstall):"
 lsblk -e7 -d -o PATH,SIZE,MODEL,SERIAL,TRAN,TYPE
 cat <<'EOF'
 
-In Archinstall's TUI, choose these settings:
+These settings will be prefilled in Archinstall's TUI:
 
-  • Disk: the internal NVMe drive. Review the model, size, and erase plan.
-  • Filesystem: Btrfs, with LUKS encryption for the root partition.
-  • EFI system partition: mount at /efi; keep it large enough for multiple UKIs.
-  • Bootloader: systemd-boot, with Unified Kernel Images enabled.
-  • Kernel: linux as a fallback; the Surface kernel is added after installation.
-  • User account: create the regular user zahinprithi (choose your own password).
-  • Locale: en_GB.UTF-8; console layout: uk.
-  • Desktop: KDE Plasma; select the plasma-meta flavor (Archinstall recommended default).
-  • Login manager: Plasma Login Manager; NetworkManager.
-  • Time zone: Asia/Dhaka (change this if you want another zone).
-  • Packages: include firefox, sbctl, cryptsetup, mkinitcpio, systemd-ukify,
+  • Locale: en_GB.UTF-8; keyboard layout: uk.
+  • Desktop: KDE Plasma with plasma-meta; Plasma Login Manager.
+  • Boot: systemd-boot with Unified Kernel Images; linux fallback kernel.
+  • Network: NetworkManager; audio: PipeWire; time zone: Asia/Dhaka.
+  • Packages: firefox, sbctl, cryptsetup, mkinitcpio, systemd-ukify,
     tpm2-tss, btrfs-progs, intel-ucode, and sudo.
+
+You must still select the internal drive, choose Btrfs and LUKS, set the EFI
+mount point to /efi, and create the regular user zahinprithi in Archinstall.
+Review all selected settings and the erase plan before confirming.
 
 Keep your LUKS passphrase. The TPM step adds an unlock method; it does not
 replace the passphrase. Secure Boot key enrollment and TPM enrollment happen
@@ -92,7 +94,7 @@ EOF
 read -r -p "Open Archinstall's guided TUI now? [y/N] " answer
 [[ "$answer" =~ ^[Yy]$ ]] || { echo "Cancelled; no disk changes made."; exit 0; }
 
-archinstall || {
+archinstall --config "$CONFIG_FILE" || {
   status=$?
   die "Archinstall exited with status $status. Check /var/log/archinstall/install.log."
 }

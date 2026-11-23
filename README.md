@@ -18,6 +18,7 @@ Review the disk and erase plan in Archinstall before confirming. The post-instal
 ## Files
 
 - [Full installation guide](SURFACE-ARCH-INSTALLATION-GUIDE.md)
+- [Archinstall prefilled profile](surface-archinstall-config.json)
 - [Surface post-install script](surface-arch-postinstall.sh)
 - [Secure Boot enrollment](surface-arch-secureboot-enroll.sh)
 - [TPM unlock enrollment](surface-arch-tpm-enroll.sh)

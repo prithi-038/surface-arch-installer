@@ -1,7 +1,7 @@
 # Surface Laptop 3 ArchISO installer
 
 This toolkit runs from the stock Arch Linux ISO. It does not rebuild or modify
-the ISO. The launcher opens Archinstall's TUI; the post-install scripts apply
+the ISO. The launcher opens Archinstall's TUI with the Surface profile prefilled; the post-install scripts apply
 Surface-specific packages and then enroll TPM unlock after Secure Boot is
 enabled. The bundle is stored on the separate `ARCHISO_EFI` FAT partition of
 the same boot USB.
@@ -27,13 +27,13 @@ bash /root/surface-archiso-installer.sh
 ```
 
 The launcher sets the live console to UK, checks internet access, and offers
-`iwctl` if Wi-Fi needs configuration. It opens the official Archinstall TUI.
-Choose the KDE Plasma profile and `plasma-meta` flavor (Archinstall currently
-marks it as recommended), with Plasma Login Manager. Create the regular account
-`zahinprithi` there (the post-install step ensures it exists and asks for its
-password). Follow the Surface profile checklist.
-Archinstall handles disk selection, partitioning, formatting, encryption, and
-the base installation; review its erase plan before confirming.
+`iwctl` if Wi-Fi needs configuration. It starts Archinstall with
+`surface-archinstall-config.json`, which preloads the UK locale and keyboard,
+KDE Plasma with `plasma-meta` and Plasma Login Manager, systemd-boot with UKIs,
+NetworkManager, PipeWire, Asia/Dhaka, and the required packages. Archinstall
+still asks you to select the disk, set up Btrfs and LUKS, choose the EFI mount
+point, and create the user `zahinprithi`. Review the full settings and erase
+plan before confirming.
 
 ## Finish the installation
 
